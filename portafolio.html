@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Portafolio</title>
+</head>
+<body>
+  <h1>Portafolio</h1>
+  <div id="lista"></div>
+
+  <script>
+    fetch("/consultoria/api/public/portafolio_listar.php")
+      .then(r => r.json())
+      .then(j => {
+        const div = document.getElementById("lista");
+        if (!j.ok) { div.textContent = "Error"; return; }
+
+        j.data.forEach(p => {
+          const card = document.createElement("div");
+          card.style.border = "1px solid #ccc";
+          card.style.padding = "10px";
+          card.style.marginBottom = "10px";
+          card.innerHTML = `
+            <h3>${p.titulo}</h3>
+            <p>${p.resumen ?? ""}</p>
+            ${p.imagen_portada ? `<img src="${p.imagen_portada}" width="200">` : ""}
+            <br>
+            ${p.url_proyecto ? `<a href="${p.url_proyecto}" target="_blank">Ver proyecto</a>` : ""}
+          `;
+          div.appendChild(card);
+        });
+      });
+  </script>
+</body>
+</html>
