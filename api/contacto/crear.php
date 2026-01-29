@@ -12,7 +12,8 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
   exit;
 }
 
-require_once __DIR__ . "/../../config/db.php";
+require_once dirname(__DIR__, 2) . "/config/db.php";
+require_once dirname(__DIR__, 2) . "/config/correo.php";
 
 $contenidoTipo = $_SERVER["CONTENT_TYPE"] ?? "";
 $entrada = null;
@@ -25,7 +26,11 @@ if (stripos($contenidoTipo, "application/json") !== false) {
 
 if (!is_array($entrada)) {
   http_response_code(400);
-  echo json_encode(["ok" => false, "error" => "Entrada inválida", "debug" => ["content_type" => $contenidoTipo]]);
+  echo json_encode([
+    "ok" => false,
+    "error" => "Entrada inválida",
+    "debug" => ["content_type" => $contenidoTipo]
+  ]);
   exit;
 }
 
@@ -47,14 +52,17 @@ if ($nombre === "" || $correo === "") {
 
 if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
   http_response_code(422);
-  echo json_encode(["ok" => false, "error" => "Correo inválido", "debug" => ["correo" => $correo]]);
+  echo json_encode([
+    "ok" => false,
+    "error" => "Correo inválido",
+    "debug" => ["correo" => $correo]
+  ]);
   exit;
 }
 
 try {
   $pdo = obtenerConexion();
 
-  // Confirmar a qué BD estás conectado
   $bdActual = $pdo->query("SELECT DATABASE() AS bd")->fetch()["bd"] ?? null;
 
   $sql = "INSERT INTO solicitudes_contacto (nombre, correo, telefono, empresa, mensaje, estado)
@@ -69,22 +77,31 @@ try {
     ":mensaje"  => $mensaje !== "" ? $mensaje : null,
   ]);
 
+  $id = (int)$pdo->lastInsertId();
+
+  // Enviar correo automático (si falla, NO rompemos el registro)
+  $correoEnviado = false;
+  try {
+    $correoEnviado = enviarCorreoConfirmacion($correo, $nombre);
+  } catch (Throwable $e) {
+    $correoEnviado = false;
+  }
+
   echo json_encode([
     "ok" => true,
-    "id" => (int)$pdo->lastInsertId(),
+    "id" => $id,
+    "correo_enviado" => $correoEnviado,
     "debug" => [
       "bd" => $bdActual,
-      "content_type" => $contenidoTipo,
-      "recibido" => $entrada
+      "content_type" => $contenidoTipo
     ]
   ]);
+
 } catch (Throwable $e) {
   http_response_code(500);
   echo json_encode([
     "ok" => false,
-    "error" => "Error del servidor (debug)",
-    "debug" => [
-      "mensaje" => $e->getMessage()
-    ]
+    "error" => "Error del servidor",
+    "debug" => ["mensaje" => $e->getMessage()]
   ]);
 }
