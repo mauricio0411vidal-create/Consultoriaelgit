@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Servicios</title>
+</head>
+<body>
+  <h1>Nuestros servicios</h1>
+  <div id="lista"></div>
+
+  <script>
+    fetch("/consultoria/api/public/servicios_listar.php")
+      .then(r => r.json())
+      .then(j => {
+        const div = document.getElementById("lista");
+        if (!j.ok) { div.textContent = "Error"; return; }
+
+        j.data.forEach(s => {
+          const card = document.createElement("div");
+          card.style.border = "1px solid #ccc";
+          card.style.padding = "10px";
+          card.style.marginBottom = "10px";
+          card.innerHTML = `<h3>${s.titulo}</h3><p>${s.descripcion_corta ?? ""}</p>`;
+          div.appendChild(card);
+        });
+      });
+  </script>
+</body>
+</html>
