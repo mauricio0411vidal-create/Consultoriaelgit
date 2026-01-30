@@ -1,0 +1,16 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Configuraciones locales (si las separas después)
+.env
+
+# Archivos temporales
+node_modules/
+vendor/
+
+# Pruebas locales (si decides no subirlas)
+docs/pruebas/
