@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Portafolio - Admin</title>
+</head>
+<body>
+  <h2>Agregar proyecto</h2>
+
+  <form id="formProyecto">
+    <input name="titulo" placeholder="Título" required><br><br>
+    <input name="resumen" placeholder="Resumen"><br><br>
+    <textarea name="descripcion" placeholder="Descripción"></textarea><br><br>
+    <input name="imagen" placeholder="Imagen (URL o ruta)"><br><br>
+    <input name="url" placeholder="URL del proyecto"><br><br>
+    <label>
+      Publicado
+      <input type="checkbox" checked>
+    </label>
+    <br><br>
+    <button type="submit">Guardar</button>
+  </form>
+
+  <pre id="resp"></pre>
+
+  <script>
+    const form = document.getElementById("formProyecto");
+    const resp = document.getElementById("resp");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = {
+        titulo: form.titulo.value,
+        resumen: form.resumen.value,
+        descripcion: form.descripcion.value,
+        imagen: form.imagen.value,
+        url: form.url.value,
+        publicado: form.querySelector("input[type=checkbox]").checked ? 1 : 0
+      };
+
+      const r = await fetch("/consultoria/api/admin/proyecto_crear.php", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(data)
+      });
+
+      const j = await r.json();
+      resp.textContent = JSON.stringify(j, null, 2);
+      if (j.ok) form.reset();
+    });
+  </script>
+</body>
+</html>

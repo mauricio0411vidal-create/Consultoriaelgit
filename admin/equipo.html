@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Equipo - Admin</title>
+</head>
+<body>
+
+<h2>Agregar integrante</h2>
+
+<form id="formEquipo">
+  <input name="nombre" placeholder="Nombre completo" required><br><br>
+  <input name="especialidad" placeholder="Especialidad" required><br><br>
+  <textarea name="biografia" placeholder="Biografía"></textarea><br><br>
+  <input name="foto" placeholder="URL de foto"><br><br>
+  <label>
+    Visible
+    <input type="checkbox" checked>
+  </label><br><br>
+  <button type="submit">Guardar</button>
+</form>
+
+<pre id="resp"></pre>
+
+<script>
+const form = document.getElementById("formEquipo");
+const resp = document.getElementById("resp");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const data = {
+    nombre: form.nombre.value,
+    especialidad: form.especialidad.value,
+    biografia: form.biografia.value,
+    foto: form.foto.value,
+    visible: form.querySelector("input[type=checkbox]").checked ? 1 : 0
+  };
+
+  const r = await fetch("/consultoria/api/admin/equipo_crear.php", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(data)
+  });
+
+  const j = await r.json();
+  resp.textContent = JSON.stringify(j, null, 2);
+  if (j.ok) form.reset();
+});
+</script>
+
+</body>
+</html>

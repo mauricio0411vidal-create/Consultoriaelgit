@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Equipo</title>
+</head>
+<body>
+
+<h1>Nuestro equipo</h1>
+<div id="lista"></div>
+
+<script>
+fetch("/consultoria/api/public/equipo_listar.php")
+  .then(r => r.json())
+  .then(j => {
+    const div = document.getElementById("lista");
+    if (!j.ok) { div.textContent = "Error"; return; }
+
+    j.data.forEach(m => {
+      const card = document.createElement("div");
+      card.style.border = "1px solid #ccc";
+      card.style.padding = "10px";
+      card.style.marginBottom = "10px";
+
+      card.innerHTML = `
+        ${m.foto ? `<img src="${m.foto}" width="120"><br>` : ""}
+        <h3>${m.nombre_completo}</h3>
+        <strong>${m.especialidad}</strong>
+        <p>${m.biografia ?? ""}</p>
+      `;
+      div.appendChild(card);
+    });
+  });
+</script>
+
+</body>
+</html>

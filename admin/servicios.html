@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Servicios - Admin</title>
+</head>
+<body>
+  <h2>Crear servicio</h2>
+
+  <form id="formServicio">
+    <input name="titulo" placeholder="Título" required><br><br>
+    <input name="slug" placeholder="slug-ejemplo" required><br><br>
+    <input name="descripcion_corta" placeholder="Descripción corta"><br><br>
+    <textarea name="descripcion_larga" placeholder="Descripción larga"></textarea><br><br>
+    <input name="icono" placeholder="Icono (opcional)"><br><br>
+    <input name="orden" type="number" value="0"><br><br>
+    <label>
+      Activo
+      <input name="activo" type="checkbox" checked>
+    </label>
+    <br><br>
+    <button type="submit">Guardar</button>
+  </form>
+
+  <pre id="resp"></pre>
+
+  <script>
+    const form = document.getElementById("formServicio");
+    const resp = document.getElementById("resp");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = {
+        titulo: form.titulo.value,
+        slug: form.slug.value,
+        descripcion_corta: form.descripcion_corta.value,
+        descripcion_larga: form.descripcion_larga.value,
+        icono: form.icono.value,
+        orden: Number(form.orden.value || 0),
+        activo: form.activo.checked ? 1 : 0
+      };
+
+      const r = await fetch("/consultoria/api/admin/servicio_crear.php", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(data)
+      });
+
+      const j = await r.json();
+      resp.textContent = JSON.stringify(j, null, 2);
+      if (j.ok) form.reset();
+    });
+  </script>
+</body>
+</html>
